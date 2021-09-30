@@ -12,8 +12,8 @@ from moveit_commander.conversions import pose_to_list
 #from robot import Robot
 from ur_icam_description.robotUR import RobotUR
 import time
+
 # global variables
-image_path = './Image_point/*.jpg'
 image_coordinates = []
 
 # Création d'un objet de la classe PerspectiveCalibration
@@ -21,29 +21,22 @@ image_coordinates = []
 dPoint = PerspectiveCalibration()
 dPoint.setup_camera()
 
-# Création d'un objet de la classe PerspectiveCalibration
+# initialisation du node robotUR
 
 myRobot = RobotUR()
-
-# initialisation du noeud robotUr
-
 rospy.init_node('robotUR')
 
 print(myRobot.get_current_pose())
-#myRobot.acceleration_factor(1)
-
-#robot = Robot(Env_cam_bas)
 
 # Position Initiale du robot
-
 pose_init = Pose()
-pose_init.position.x = -41.005 / 100
-pose_init.position.y = -11.746 / 100
-pose_init.position.z = 0.22
-pose_init.orientation.x = -0.4952562586434166
-pose_init.orientation.y = 0.49864161678730506
-pose_init.orientation.z = 0.5082803126324129
-pose_init.orientation.w = 0.497723718615624
+pose_init.position.x = 0.32619530151200343
+pose_init.position.y = -0.3264760799654223
+pose_init.position.z = 0.15268409877277422
+pose_init.orientation.x = 0.5224185254931262
+pose_init.orientation.y = 0.8491397286773459
+pose_init.orientation.z = -0.056266648059096896
+pose_init.orientation.w = 0.05361594650423735
 myRobot.go_to_pose_goal(pose_init)
 
 def click_event(event, x, y, flags, params):
@@ -82,17 +75,9 @@ def click_event(event, x, y, flags, params):
 
         myRobot.go_to_pose_goal(pose_goal)
 
-        #robot.take_pick()
         print("target reached")
         time.sleep(1)
 
-        #myRobot.go_to_pose_goal(pose_init)
-
-    # reading the image
-img2 = cv2.imread(image_path, 1)
-
-# displaying the image
-#cv2.imshow('image', img2)
 
 cap = cv2.VideoCapture(0)
 cap.set(3, 1280)
@@ -104,10 +89,7 @@ while True:
    if success:
         cv2.imshow("webcam", img)
         cv2.waitKey(1)
-        #cv2.setMouseCallback('image', click_event)
         cv2.setMouseCallback(nom_fenetre, click_event)
-
-
 
 # setting mouse handler for the image
 # and calling the click_event() function

@@ -8,7 +8,6 @@ import yaml
 
 # File only for camera_calibration, only need to do it once before using the rest of the programn.
 
-# workingdir="/home/pi/Desktop/Captures/"
 savedir = './camera_data/'  # !!
 
 # Defining the dimensions of checkerboard
@@ -26,8 +25,7 @@ objp[0, :, :2] = np.mgrid[0:CHECKERBOARD[0], 0:CHECKERBOARD[1]].T.reshape(-1, 2)
 prev_img_shape = None
 
 # Extracting path of individual image stored in a given directory
-images = glob.glob(
-    './Photo_Chessboard_pour_Calibration/Essai6/*.jpg')
+images = glob.glob('chessboard_photos/*.jpg')
 
 for fname in images:
     img = cv2.imread(fname)

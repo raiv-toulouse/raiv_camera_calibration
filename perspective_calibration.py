@@ -213,23 +213,10 @@ class PerspectiveCalibration:
         print(cx, cy)
         total_points_used = 10
 
-        # X_center = 30.886
-        # Y_center = -3.734
-        # Z_center = 65.30477628
         X_center = 26.71
         Y_center = -1.71
         Z_center = 48.75
         # COORDINATES OF REAL ENVIRONMENT
-        # world_points = np.array([[X_center, Y_center, Z_center],
-        #                          [40.200, 9.370, 65.27473815],
-        #                          [40.402, -2.510, 64.63968847],
-        #                          [40.712, -14.460, 66.18411792],
-        #                          [33.913, 9.322, 65.53060627],
-        #                          [34.174, -2.642, 64.88544395],
-        #                          [34.306, -14.580, 66.43067211],
-        #                          [27.606, 9.111, 66.3646005],
-        #                          [27.860, -2.688, 65.73543009],
-        #                          [28.077, -14.647, 67.24660352]], dtype=np.float32)
         world_points = np.array([[X_center, Y_center, Z_center],
                                  [36.96, 12.21, 48.93],
                                  [37.29, 0.01, 48.66],
@@ -243,17 +230,6 @@ class PerspectiveCalibration:
 
         # MANUALLY INPUT THE DETECTED IMAGE COORDINATES HERE - Using function onclick
         # [u,v] center + 9 Image points
-        # image_points = np.array([[640, 480],
-        #                          [342, 289],
-        #                          [604, 273],
-        #                          [862, 258],
-        #                          [354, 428],
-        #                          [613, 411],
-        #                          [867, 395],
-        #                          [366, 562],
-        #                          [621, 545],
-        #                          [871, 528]
-        #                          ], dtype=np.float32)
         image_points = np.array([[640, 480],   # Coordinates of center point (middle of the image)
                                  [282, 226],
                                  [603, 223],

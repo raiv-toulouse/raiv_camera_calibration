@@ -37,7 +37,7 @@ pose_init.orientation.x = 0.5224185254931262
 pose_init.orientation.y = 0.8491397286773459
 pose_init.orientation.z = -0.056266648059096896
 pose_init.orientation.w = 0.05361594650423735
-myRobot.go_to_pose_goal(pose_init)
+myRobot.go_to_pose(pose_init)
 
 def click_event(event, x, y, flags, params):
 
@@ -73,12 +73,12 @@ def click_event(event, x, y, flags, params):
         pose_goal.orientation.z = -0.056266648059096896
         pose_goal.orientation.w = 0.05361594650423735
         print(pose_goal)
-        myRobot.go_to_pose_goal(pose_goal)
+        myRobot.go_to_pose(pose_goal)
         print("target reached")
         time.sleep(1)
 
 
-cap = cv2.VideoCapture(0)
+cap = cv2.VideoCapture(1)
 cap.set(3, 1280)
 cap.set(4, 960)
 nom_fenetre = "webcam"

@@ -10,7 +10,7 @@ import rospkg
 from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
 from moveit_commander.conversions import pose_to_list
 #from robot import Robot
-from ur_icam_description.robotUR import RobotUR
+from raiv_libraries.robotUR import RobotUR
 import time
 
 # global variables
@@ -30,8 +30,8 @@ print(myRobot.get_current_pose())
 
 # Position Initiale du robot
 pose_init = Pose()
-pose_init.position.x = 0.32619530151200343
-pose_init.position.y = -0.3264760799654223
+pose_init.position.x = -0.32619530151200343
+pose_init.position.y = 0.3264760799654223
 pose_init.position.z = 0.15268409877277422
 pose_init.orientation.x = 0.5224185254931262
 pose_init.orientation.y = 0.8491397286773459
@@ -58,7 +58,7 @@ def click_event(event, x, y, flags, params):
         # cv2.putText(img, str(int(xyz[0][0])) + ' , ' +
         #             str(int(xyz[1][0])) + ' , ' + str(int(xyz[2][0])), (x, y), font,
         #             0.5, (255, 0, 0), 2)
-        cv2.putText(img2, 'X', (x, y), font,
+        cv2.putText(img, 'X', (x, y), font,
                      0.5, (255, 0, 0), 2)
         #cv2.imshow("image", img2)
 
@@ -68,13 +68,12 @@ def click_event(event, x, y, flags, params):
         pose_goal.position.x = -(xyz[0][0]) / 100
         pose_goal.position.y = -(xyz[1][0]) / 100
         pose_goal.position.z = 0.22
-        pose_goal.orientation.x = -0.4952562586434166
-        pose_goal.orientation.y = 0.49864161678730506
-        pose_goal.orientation.z = 0.5082803126324129
-        pose_goal.orientation.w = 0.497723718615624
-
+        pose_goal.orientation.x = 0.5224185254931262
+        pose_goal.orientation.y = 0.8491397286773459
+        pose_goal.orientation.z = -0.056266648059096896
+        pose_goal.orientation.w = 0.05361594650423735
+        print(pose_goal)
         myRobot.go_to_pose_goal(pose_goal)
-
         print("target reached")
         time.sleep(1)
 

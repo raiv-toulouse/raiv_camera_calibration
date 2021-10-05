@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1488</width>
+    <width>1606</width>
     <height>978</height>
    </rect>
   </property>
@@ -19,7 +19,7 @@
      <item>
       <widget class="QLabel" name="lbl_checkerboard_images_folder">
        <property name="text">
-        <string>Checkerboard images folder</string>
+        <string>Select the checkerboard images folder</string>
        </property>
       </widget>
      </item>
@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbl_model_name">
+      <widget class="QLabel" name="lbl_checkboard_size">
        <property name="text">
         <string>Checkerboard size</string>
        </property>
@@ -70,9 +70,9 @@
       </layout>
      </item>
      <item>
-      <widget class="QLabel" name="label_2">
+      <widget class="QLabel" name="lbl_model_name">
        <property name="text">
-        <string>Calibration files folder</string>
+        <string>Select the calibration files folder</string>
        </property>
       </widget>
      </item>
@@ -87,13 +87,6 @@
       <widget class="QPushButton" name="btn_generate_calibration_files">
        <property name="text">
         <string>Generate calibration files</string>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QLabel" name="label">
-       <property name="text">
-        <string>Select the folder to save the calibration files</string>
        </property>
       </widget>
      </item>
@@ -125,7 +118,7 @@ p, li { white-space: pre-wrap; }
     </layout>
    </item>
    <item>
-    <widget class="QWidget" name="canvas" native="true">
+    <widget class="Canvas" name="canvas" native="true">
      <property name="minimumSize">
       <size>
        <width>1280</width>
@@ -136,6 +129,14 @@ p, li { white-space: pre-wrap; }
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>Canvas</class>
+   <extends>QWidget</extends>
+   <header>canvas.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <resources/>
  <connections/>
 </ui>

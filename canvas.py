@@ -21,6 +21,13 @@ class Canvas(QWidget):
             rect = event.rect()
             qp.drawImage(rect, self.image, rect)
 
+    def mousePressEvent(self, event):
+        if event.button() == Qt.LeftButton:
+            pos = event.pos()
+            print(pos)
+            image_coord = [pos.x(), pos.y()]
+            print(image_coord)
+
 
 
 

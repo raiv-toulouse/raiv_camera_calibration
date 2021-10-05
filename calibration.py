@@ -7,11 +7,12 @@ from PyQt5 import uic
 import cv2
 import numpy as np
 from pathlib import Path
-from raiv_librairies.robotUR import RobotUR
+from raiv_libraries.robotUR import RobotUR
 
 MESSAGES = ("Now, put the robot tool on the point #{} and click the 'Get point' button.",
             "Now, put the robot tool on the middle of the image and click the 'Get point' button.",
-            "Now, click in the image on the point #{}")
+            "Now, click in the image on the point #{}",
+            "Now, it's time to test the calibration. Click on the image then click the 'Verify' button. The robot should go to this place.")
 
 class Calibration(QWidget):
     def __init__(self):
@@ -106,23 +107,29 @@ class Calibration(QWidget):
         elif 1 <= self.step <= 9: # We measure the x,y,z for the 9 points
             (x, y, z) = self._get_point()
             self.step += 1
-            if self.step <= 9:
+            if self.step < 9:
                 self.txt_explanation.setPlainText(MESSAGES[0].format(self.step))
             else:
-                self.txt_explanation.setPlainText(MESSAGES[1].format(self.step)) # Next message
+                self.txt_explanation.setPlainText(MESSAGES[1]) # Next message
         elif self.step == 10: # We measure the x,y,z for the point in the center of the scene
             (self.X_center, self.Y_center, self.Z_center) = self._get_point()
             self.step += 1
-            self.txt_explanation.setPlainText(MESSAGES[2].format(self.step)) # Next message
-        else:
+            self.txt_explanation.setPlainText(MESSAGES[2].format(self.step-10)) # Next message
+        elif 11 <= self.step <= 19: # We measure the pixel coordinates of the 9 points
+            (px, py) = self._get_pixel_coord()
+            self.step += 1
+            if self.step < 19:
+                self.txt_explanation.setPlainText(MESSAGES[2].format(self.step-10)) # Next message
+            else:
+                self.txt_explanation.setPlainText(MESSAGES[3])
+                self.btn_verify.setEnabled(True)
 
+    def _get_pixel_coord(self):
+        pass
 
-
-
-
-def _get_point(self):
-        pose = self.robot.get_current_pose()
-        return (pose.translation.x*100, pose.translation.y*100, pose.translation.z*100)  # From m to cm
+    def _get_point(self):
+            pose = self.robot.get_current_pose()
+            return (pose.translation.x*100, pose.translation.y*100, pose.translation.z*100)  # From m to cm
 
     def _convert_opencv_to_qimage(self, cvImg):
         height, width, channel = cvImg.shape

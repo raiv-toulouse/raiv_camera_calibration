@@ -91,6 +91,13 @@
       </widget>
      </item>
      <item>
+      <widget class="QPushButton" name="btn_get_point">
+       <property name="text">
+        <string>Get point</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QTextEdit" name="txt_explanation">
        <property name="html">
         <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
@@ -103,6 +110,9 @@ p, li { white-space: pre-wrap; }
      </item>
      <item>
       <widget class="QPushButton" name="btn_verify">
+       <property name="enabled">
+        <bool>false</bool>
+       </property>
        <property name="text">
         <string>Verify</string>
        </property>

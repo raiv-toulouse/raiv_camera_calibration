@@ -8,6 +8,8 @@ import numpy as np
 from pathlib import Path
 from PyQt5.QtCore import pyqtSlot
 from PyQt5.QtGui import QImage
+
+from raiv_camera_calibration.perspective_calibration import PerspectiveCalibration
 from raiv_libraries.src.raiv_libraries.robotUR import RobotUR
 from raiv_libraries.src.raiv_libraries.simple_image_controller import SimpleImageController
 
@@ -93,15 +95,17 @@ class Calibration(QWidget):
         np.save(self.calibration_files_folder / 'cam_mtx.npy', mtx)
         np.save(self.calibration_files_folder / 'dist.npy', dist)
         # Refining the camera matrix using parameters obtained by calibration
-        new_camera_mtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+        self.new_camera_mtx, roi = cv2.getOptimalNewCameraMatrix(mtx, dist, (w, h), 1, (w, h))
+        self.cx = self.newcam_mtx[0,2]
+        self.cy = self.newcam_mtx[1,2]
         np.save(self.calibration_files_folder / 'roi.npy', roi)
-        np.save(self.calibration_files_folder / 'newcam_mtx.npy', new_camera_mtx)
-        inverse_newcam_mtx = np.linalg.inv(new_camera_mtx)
+        np.save(self.calibration_files_folder / 'newcam_mtx.npy', self.new_camera_mtx)
+        inverse_newcam_mtx = np.linalg.inv(self.new_camera_mtx)
         np.save(self.calibration_files_folder / 'inverse_newcam_mtx.npy', mtx)
         np.save(self.calibration_files_folder / 'mtx.npy', inverse_newcam_mtx)
-        np.save(self.calibration_files_folder / 'new_camera_mtx.npy', new_camera_mtx)
+        np.save(self.calibration_files_folder / 'new_camera_mtx.npy', self.new_camera_mtx)
         ### UNDISTORSION ####
-        dst = cv2.undistort(img, mtx, dist, None, new_camera_mtx)
+        dst = cv2.undistort(img, mtx, dist, None, self.new_camera_mtx)
         # Displaying the undistorted image
         qimg = self._convert_opencv_to_qimage(dst)
         self.canvas.set_image(qimg)
@@ -121,14 +125,15 @@ class Calibration(QWidget):
     def get_mesure(self):
         if self.step == 0: # We measure the camera
             (self.X_camera, self.Y_camera, self.Z_camera) = self._get_point()
-            self.world_points = np.empty((0,3), dtype=np.float32)
+            self.world_points = np.empty((0,3), dtype=np.float32)  # (X,Y,d*) d* is the distance from your point to the camera lens. (d* = Z for the camera center)
             self.step += 1
             self.txt_explanation.setPlainText(MESSAGES[0].format(self.step)) # Next message
         elif 1 <= self.step <= 9: # We measure the x,y,z for the 9 points
             (x, y, z) = self._get_point()
-            d = self._compute_distance(x,y,z)
-            print(x,y,d)
-            self.world_points = np.append(self.world_points, [[x, y, d]], axis=0)
+            # d = self._compute_distance(x,y,z)   Il faut mettre Z, pas D. Depuis l'article, on mesure d puis on en déduit Z. Ici, on a directement Z
+            # print(x,y,d)
+            # self.world_points = np.append(self.world_points, [[x, y, d]], axis=0)
+            self.world_points = np.append(self.world_points, [[x, y, z]], axis=0)
             self.step += 1
             if self.step <= 9:
                 self.txt_explanation.setPlainText(MESSAGES[0].format(self.step))
@@ -139,18 +144,27 @@ class Calibration(QWidget):
             self.Z_center = self._compute_distance(self.X_center, self.Y_center, z)
             self.world_points = np.insert(self.world_points, 0, [[self.X_center, self.Y_center, self.Z_center]], axis=0)
             print(self.world_points)
-            self.image_points = np.array([[int(self.width/2), int(self.height/2)]], dtype=np.int)
+            self.image_points = np.array([[self.cx, self.cy]], dtype=np.int) # [u,v] center + 9 Image points
             self.step += 1
             self.txt_explanation.setPlainText(MESSAGES[2].format(self.step-10)) # Next message
         elif 11 <= self.step <= 19: # We measure the pixel coordinates of the 9 points
             print("Pixel coord = {}".format(self.pixel_coord))
             self.image_points = np.append(self.image_points, [[self.pixel_coord[0], self.pixel_coord[1]]], axis=0)
             self.step += 1
-            if self.step < 19:
+            if self.step <= 19:
                 self.txt_explanation.setPlainText(MESSAGES[2].format(self.step-10)) # Next message
             else:
-                self.txt_explanation.setPlainText(MESSAGES[3])
+                self.txt_explanation.setPlainText(MESSAGES[3])  # All points are acquired, let's start calibration
                 print(self.image_points)
+                self._calibrate()
+                self.dPoint = PerspectiveCalibration(self.calibration_files_folder)
+        else:
+            xyz = self.dPoint.from_2d_to_3d(self.pixel_coord)
+            print(xyz)
+            x = xyz[0][0] / 100
+            y = xyz[1][0] / 100
+            print(x,y)
+            self.robot.go_to_xyz_position(x, y, 0.2)
 
     def _compute_distance(self,x,y,z):
         """ Return the distance between the x,y,z point and the camera"""
@@ -158,7 +172,6 @@ class Calibration(QWidget):
         dy = y - self.Y_camera
         dz = z - self.Z_camera
         return math.sqrt(dx*dx + dy*dy + dz*dz)
-
 
     def _get_point(self):
         pose = self.robot.get_current_pose()
@@ -169,6 +182,114 @@ class Calibration(QWidget):
         height, width, channel = cvImg.shape
         bytesPerLine = 3 * width
         return QImage(cvImg.data, width, height, bytesPerLine, QImage.Format_RGB888)
+
+    def _calibrate(self):
+        cam_mtx, dist, roi, newcam_mtx, inverse_newcam_mtx = self.load_parameters()
+        total_points_used = 10
+        # For Real World Points, calculate Z from d*
+        # world_points = calculate_z_total_points(world_points, X_center, Y_center)
+
+        # Get rotation and translation_vector from the parameters of the camera, given a set of 2D and 3D points
+        (success, rotation_vector, translation_vector) = cv2.solvePnP(self.world_points, self.image_points, newcam_mtx, dist,
+                                                                      flags=cv2.SOLVEPNP_ITERATIVE)
+        # if self.writeValues:
+        #     print("save")
+        #     self.save_parameters(rotation_vector, translation_vector, newcam_mtx)
+        # # Check the accuracy now
+        mean, std = self.calculate_accuracy(self.world_points, self.image_points, total_points_used)
+        print("Mean:{0}".format(mean) + "Std:{0}".format(std))
+
+    # Lets the check the accuracy here :
+    # In this script we make sure that the difference and the error are acceptable in our project.
+    # If not, maybe we need more calibration images and get more points or better points
+    def calculate_accuracy(self, worldPoints, imagePoints, total_points_used):
+        s_arr = np.array([0], dtype=np.float32)
+        size_points = len(worldPoints)
+        s_describe = np.empty((size_points,), dtype=np.float32)
+
+        rotation_vector, translation_vector, R_mtx, Rt, P_mtx, inverse_newcam_mtx = self.load_checking_parameters()
+
+        for i in range(0, size_points):
+            print("=======POINT # " + str(i) + " =========================")
+
+            print("Forward: From World Points, Find Image Pixel\n")
+            XYZ1 = np.array([[worldPoints[i, 0], worldPoints[i, 1], worldPoints[i, 2], 1]], dtype=np.float32)
+            XYZ1 = XYZ1.T
+            print("---- XYZ1\n")
+            print(XYZ1)
+            suv1 = P_mtx.dot(XYZ1)
+            print("---- suv1\n")
+            print(suv1)
+            s = suv1[2, 0]
+            uv1 = suv1 / s
+            print("====>> uv1 - Image Points\n")
+            print(uv1)
+            print("=====>> s - Scaling Factor\n")
+            print(s)
+            s_arr = np.array([s / total_points_used + s_arr[0]], dtype=np.float32)
+            s_describe[i] = s
+            if self.writeValues:
+                np.save(self.savedir + 's_arr.npy', s_arr)
+
+            print("Solve: From Image Pixels, find World Points")
+
+            uv_1 = np.array([[imagePoints[i, 0], imagePoints[i, 1], 1]], dtype=np.float32)
+            uv_1 = uv_1.T
+            print("=====> uv1\n")
+            print(uv_1)
+            suv_1 = s * uv_1
+            print("---- suv1\n")
+            print(suv_1)
+
+            print("Get camera coordinates, multiply by inverse Camera Matrix, subtract tvec1\n")
+            xyz_c = inverse_newcam_mtx.dot(suv_1)
+            xyz_c = xyz_c - translation_vector
+            print("---- xyz_c\n")
+            inverse_R_mtx = np.linalg.inv(R_mtx)
+            XYZ = inverse_R_mtx.dot(xyz_c)
+            print("---- XYZ\n")
+            print(XYZ)
+
+        s_mean, s_std = np.mean(s_describe), np.std(s_describe)
+
+        print(">>>>>>>>>>>>>>>>>>>>> S RESULTS\n")
+        print("Mean: " + str(s_mean))
+        # print("Average: " + str(s_arr[0]))
+        print("Std: " + str(s_std))
+
+        print(">>>>>> S Error by Point\n")
+
+        for i in range(0, total_points_used):
+            print("Point " + str(i))
+            print("S: " + str(s_describe[i]) + " Mean: " + str(s_mean) + " Error: " + str(s_describe[i] - s_mean))
+
+        return s_mean, s_std
+
+    def load_checking_parameters(self):
+        rotation_vector = np.load(self.calibration_files_folder / 'rotation_vector.npy')
+        translation_vector = np.load(self.calibration_files_folder / 'translation_vector.npy')
+        R_mtx = np.load(self.calibration_files_folder / 'R_mtx.npy')
+        Rt = np.load(self.calibration_files_folder / 'Rt.npy')
+        P_mtx = np.load(self.calibration_files_folder / 'P_mtx.npy')
+        inverse_newcam_mtx = np.load(self.calibration_files_folder / 'inverse_newcam_mtx.npy')
+        return rotation_vector, translation_vector, R_mtx, Rt, P_mtx, inverse_newcam_mtx
+
+    # Load parameters from the camera
+    def load_parameters(self):
+        # load camera calibration
+        cam_mtx = np.load(self.calibration_files_folder / 'cam_mtx.npy')
+        dist = np.load(self.calibration_files_folder / 'dist.npy')
+        roi = np.load(self.calibration_files_folder / 'roi.npy')
+        newcam_mtx = np.load(self.calibration_files_folder / 'newcam_mtx.npy')
+        inverse_newcam_mtx = np.linalg.inv(newcam_mtx)
+        np.save(self.calibration_files_folder / 'inverse_newcam_mtx.npy', inverse_newcam_mtx)
+        # if self.display:
+        #     print("Camera Matrix :\n {0}".format(cam_mtx))
+        #     print("Dist Coeffs :\n {0}".format(dist))
+        #     print("Region of Interest :\n {0}".format(roi))
+        #     print("New Camera Matrix :\n {0}".format(newcam_mtx))
+        #     print("Inverse New Camera Matrix :\n {0}".format(inverse_newcam_mtx))
+        return cam_mtx, dist, roi, newcam_mtx, inverse_newcam_mtx
 
 if __name__ == '__main__':
     import rospy

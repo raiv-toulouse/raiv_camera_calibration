@@ -1,6 +1,6 @@
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
-
+from PyQt5.QtCore import *
 
 
 class Canvas(QWidget):
@@ -24,10 +24,8 @@ class Canvas(QWidget):
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:
             pos = event.pos()
-            print(pos)
-            image_coord = [pos.x(), pos.y()]
-            print(image_coord)
-
+            pixel_coord = [pos.x(), pos.y()]
+            self.parent.pixel_coord = pixel_coord
 
 
 

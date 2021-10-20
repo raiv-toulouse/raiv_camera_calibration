@@ -20,6 +20,13 @@ class Canvas(QWidget):
             qp = QPainter(self)
             rect = event.rect()
             qp.drawImage(rect, self.image, rect)
+            # if self.parent.cx != None: # Draw point (cx,cy) when it has been calculated
+            #     pen = QPen(Qt.red, 5)
+            #     qp.setPen(pen)
+            #     x_center = int(self.parent.cx)
+            #     y_center = int(self.parent.cy)
+            #     qp.drawPoint(x_center, y_center)
+            qp.end()
 
     def mousePressEvent(self, event):
         if event.button() == Qt.LeftButton:

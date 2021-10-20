@@ -1,14 +1,9 @@
 
 import cv2
 
-import numpy as np
-from perspective_calibration import PerspectiveCalibration
-from tf.transformations import euler_from_quaternion, quaternion_from_euler
-import moveit_commander
+from raiv_camera_calibration.src.raiv_camera_calibration.perspective_calibration import PerspectiveCalibration
 import rospy
-import rospkg
-from geometry_msgs.msg import Pose, PoseStamped, Point, Quaternion
-from moveit_commander.conversions import pose_to_list
+from geometry_msgs.msg import Pose
 #from robot import Robot
 from raiv_libraries.robotUR import RobotUR
 import time

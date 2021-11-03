@@ -18,8 +18,8 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
             "Finally, click the 'Calibrate' button")
 
 # Robot coord to be out of camera scope
-X_ROBOT_OUT = 0.3
-Y_ROBOT_OUT = 0.3
+X_ROBOT_OUT = 0.0
+Y_ROBOT_OUT = -0.3
 Z_ROBOT = 0.02 # Z coord for the robot during the verify step
 
 #
@@ -32,7 +32,7 @@ Z_ROBOT = 0.02 # Z coord for the robot during the verify step
 # python calibration.py
 #
 class Calibration(QWidget):
-    def __init__(self, image_topic='/usb_cam/image_raw'):
+    def __init__(self, image_topic='/camera/color/image_raw'):
         super().__init__()
         uic.loadUi("calibration.ui",self)
         # Event handler
@@ -47,6 +47,10 @@ class Calibration(QWidget):
         self.btn_robot_out_of_scope.clicked.connect(self._move_robot_out_of_scope)
         # Attributs
         self.image_topic = image_topic
+
+        self.distance_topic = '/camera/aligned_depth_to_color/image_raw'
+        self.distance = None
+
         self.image_controller = None
         self.checkerboard_image_folder = None
         self.calibration_files_folder = None
@@ -168,7 +172,7 @@ class Calibration(QWidget):
                 self.pixel_points = np.empty((0,2), dtype=np.float32)
         elif 10 <= self.step <= 18: # We measure the pixel coordinates of the 9 points
             if self.pixel_coord == None:
-                QMessageBox.warning(self, "Warning", "Do you forget to select a pixel on the image?")
+                QMessageBox.warning(self, "Warning", "Did you forget to select a pixel on the image?")
             else:
                 self._print_info("Pixel coord = {}".format(self.pixel_coord))
                 self.pixel_points = np.append(self.pixel_points, [[self.pixel_coord[0], self.pixel_coord[1]]], axis=0)

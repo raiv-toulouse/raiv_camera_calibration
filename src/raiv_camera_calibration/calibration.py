@@ -20,7 +20,7 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
 # Robot coord to be out of camera scope
 X_ROBOT_OUT = 0.0
 Y_ROBOT_OUT = -0.3
-Z_ROBOT = 0.02 # Z coord for the robot during the verify step
+Z_ROBOT = 0.02 # Z coord (in mm) for the robot during the verify step
 
 #
 # First, run this programs before running this one :
@@ -239,7 +239,7 @@ class Calibration(QWidget):
         else:
             xyz = self.dPoint.from_2d_to_3d(self.pixel_coord)
             self._print_info("Pixel coord = {:.0f}, {:.0f}".format(self.pixel_coord[0],self.pixel_coord[1]))
-            self._print_info("XYZ = {:.2f}, {:.2f}, {:.2f}".format(xyz[0][0],xyz[1][0],xyz[2][0]))
+            self._print_info("XYZ = {:.2f}, {:.2f}, {:.2f}".format(float(xyz[0][0]),float(xyz[1][0]),float(xyz[2][0])))
             x = xyz[0][0] / 100
             y = xyz[1][0] / 100
             self.robot.go_to_xyz_position(x, y, Z_ROBOT)

@@ -26,7 +26,9 @@ class PerspectiveCalibration:
 
         #Calculate the histogram of the depth image to get the distance value of the table by getting the most recurrent value in the image
         self.histogram = cv2.calcHist([depth_image], [0], None, [1000], [1,1000])
-        self.background_index = self.histogram.argmax()
+        #self.background_index = self.histogram.argmax()
+        self.background_index = np.max([depth_image])
+        self.background_index = self.background_index - 2
 
         # load camera calibration
         newcam_mtx = np.load(self.savedir / 'newcam_mtx.npy')
@@ -100,23 +102,35 @@ class PerspectiveCalibration:
         print(f'The correction equals {correction} cm')
         print(f'The correction en valeur absolue equals {correction2} cm')
 
-        #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image
-        #the intersection between those two object is the point we were really aiming at the beginning
-        point_1 = Point(a_prime[0], a_prime[1])
-        circle = point_1.buffer(correction2).boundary
-        line = LineString([(a_prime[0],a_prime[1]), (b_prime[0],b_prime[1])])
+        if correction2 != 0 :
+            print('on doit faire une correction de ', correction2, ' cm')
+            #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image
+            #the intersection between those two object is the point we were really aiming at the beginning
+            point_1 = Point(a_prime[0], a_prime[1])
+            circle = point_1.buffer(correction2).boundary
+            line = LineString([(a_prime[0],a_prime[1]), (b_prime[0],b_prime[1])])
 
-        intersection = circle.intersection(line)
-        print('intersection : ', intersection)
-
-        #The new coordinates of the aimed point in the robot coordinates are declared to be the coords of the intersection
-        try:
-            XYZ = [[intersection.coords[0][0]],[intersection.coords[0][1]], [h_object]]
-            return XYZ
-        except Exception as e:
-            print(f'An error occured : {e}')
-            print(image_coordinates)
-            return self.from_2d_to_3d(self, image_coordinates)
+            intersection = circle.intersection(line)
+            print('intersection : ', intersection)
+            try:
+                XYZ = [[intersection.coords[0][0]],[intersection.coords[0][1]], [h_object]]
+                print('XYZ corrigé : \n', XYZ)
+                return XYZ
+            except Exception as e:
+                print(f'An error occured : {e}')
+                print(image_coordinates)
+                return self.from_2d_to_3d(self, image_coordinates)
+        else :
+            print('aucune correction nécessaire')
+            #The new coordinates of the aimed point in the robot coordinates are declared to be the coords of the intersection
+            try:
+                XYZ = [[XYZ[0]],[XYZ[1]], [h_object]]
+                print('XYZ non-corrigé : \n', XYZ)
+                return XYZ
+            except Exception as e:
+                print(f'An error occured : {e}')
+                print(image_coordinates)
+                return self.from_2d_to_3d(self, image_coordinates)
 
 
 if __name__ == '__main__':

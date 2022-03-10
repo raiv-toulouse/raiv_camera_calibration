@@ -17,10 +17,11 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
             "Now, click in the image on the point #{} then click the 'Get point' button",
             "Finally, click the 'Calibrate' button")
 
-# Robot coord to be out of camera scope
+# Robot coord to be out of camera scope en metre
 X_ROBOT_OUT = 0.0
 Y_ROBOT_OUT = -0.3
-Z_ROBOT = 0 # Z coord (in mm) for the robot during the verify step
+Z_ROBOT = 0.00 # Z coord (in m) for the robot during the verify step
+
 
 #
 # First, run this programs before running this one :
@@ -244,6 +245,7 @@ class Calibration(QWidget):
             x = xyz[0][0] / 100
             y = xyz[1][0] / 100
             z = xyz[2][0] / 100 + Z_ROBOT
+            print('z securité' , z)
             self.robot.go_to_xyz_position(x, y, z)
 
 

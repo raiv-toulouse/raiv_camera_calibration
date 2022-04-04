@@ -26,9 +26,8 @@ class PerspectiveCalibration:
 
         #Calculate the histogram of the depth image to get the distance value of the table by getting the most recurrent value in the image
         self.histogram = cv2.calcHist([depth_image], [0], None, [1000], [1,1000])
-        #self.background_index = self.histogram.argmax()
-        self.background_index = np.max([depth_image])
-        self.background_index = self.background_index - 2
+        self.background_index = self.histogram.argmax()
+
 
         # load camera calibration
         newcam_mtx = np.load(self.savedir / 'newcam_mtx.npy')
@@ -75,8 +74,16 @@ class PerspectiveCalibration:
         #This value correspond to the value of distance of the pixel selected with the coordinates (v,u)
         print('Depth value of the selected pixel : ', self.depth_image[v][u])
 
+        print('coordonnée u', u)
+        print('coordonnée v', v)
+
         #The height of the object of the selected pixel is equal to the height of the table minus the height of the pixel
         h_object = (self.background_index - self.depth_image[v][u])/10
+
+        print('hauteur de table', self.background_index)
+        print('hauteur du pixel', self.depth_image[v][u])
+        print ('hhh', h_object)
+
         print("Height of the object : ", h_object)
 
         #b_prime is the coordinates of the center of the image (in robot coordinates)
@@ -97,17 +104,15 @@ class PerspectiveCalibration:
 
 
        #we use the Thales Theorem to calculate the correction necessary
-        correction = ((h_object * a_prime_b_prime) / b_prime_c)
-        correction2 = abs(correction)
+        correction = abs(((h_object * a_prime_b_prime) / b_prime_c))
         print(f'The correction equals {correction} cm')
-        print(f'The correction en valeur absolue equals {correction2} cm')
 
-        if correction2 != 0 :
-            print('on doit faire une correction de ', correction2, ' cm')
+        if correction != 0 :
+            print('on doit faire une correction de ',correction, ' cm')
             #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image
             #the intersection between those two object is the point we were really aiming at the beginning
             point_1 = Point(a_prime[0], a_prime[1])
-            circle = point_1.buffer(correction2).boundary
+            circle = point_1.buffer(correction).boundary
             line = LineString([(a_prime[0],a_prime[1]), (b_prime[0],b_prime[1])])
 
             intersection = circle.intersection(line)
@@ -120,6 +125,7 @@ class PerspectiveCalibration:
                 print(f'An error occured : {e}')
                 print(image_coordinates)
                 return self.from_2d_to_3d(self, image_coordinates)
+
         else :
             print('aucune correction nécessaire')
             #The new coordinates of the aimed point in the robot coordinates are declared to be the coords of the intersection

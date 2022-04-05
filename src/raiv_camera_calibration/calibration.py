@@ -20,7 +20,7 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
 # Robot coord to be out of camera scope en metre
 X_ROBOT_OUT = 0.0
 Y_ROBOT_OUT = -0.3
-Z_ROBOT = 0.00 # Z coord (in m) for the robot during the verify step
+Z_ROBOT = 0.005 # Z coord (in m) for the robot during the verify step
 
 
 #
@@ -80,6 +80,7 @@ class Calibration(QWidget):
         dir = QFileDialog.getExistingDirectory(self, "Select calibration files directory", ".", QFileDialog.ShowDirsOnly)
         if dir:
             self.calibration_files_folder = Path(dir)
+            print('eeeeehoooooh', self.calibration_files_folder)
             self.lbl_model_name.setText(str(self.calibration_files_folder))
 
     def generate_calibration_files(self):

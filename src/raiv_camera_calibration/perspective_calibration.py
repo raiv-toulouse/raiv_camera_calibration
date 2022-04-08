@@ -74,15 +74,12 @@ class PerspectiveCalibration:
         #This value correspond to the value of distance of the pixel selected with the coordinates (v,u)
         print('Depth value of the selected pixel : ', self.depth_image[v][u])
 
-        print('coordonnée u', u)
-        print('coordonnée v', v)
+        #print('coordonnée u', u)
+        #print('coordonnée v', v)
 
         #The height of the object of the selected pixel is equal to the height of the table minus the height of the pixel
         h_object = (self.background_index - self.depth_image[v][u])/10
 
-        print('hauteur de table', self.background_index)
-        print('hauteur du pixel', self.depth_image[v][u])
-        print ('hhh', h_object)
 
         print("Height of the object : ", h_object)
 
@@ -98,9 +95,9 @@ class PerspectiveCalibration:
         #b_prime_c is the distance between the camera and the point at the center of the image
         b_prime_c = self.background_index /10
 
-        print('XYZ : ', XYZ)
-        print('A prime B prime : ', a_prime_b_prime)
-        print('b_prime_c : ', b_prime_c)
+        #print('XYZ : ', XYZ)
+        #print('A prime B prime : ', a_prime_b_prime)
+        #print('b_prime_c : ', b_prime_c)
 
 
        #we use the Thales Theorem to calculate the correction necessary
@@ -108,18 +105,15 @@ class PerspectiveCalibration:
         print(f'The correction equals {correction} cm')
 
         if correction != 0 :
-            print('on doit faire une correction de ',correction, ' cm')
             #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image
             #the intersection between those two object is the point we were really aiming at the beginning
             point_1 = Point(a_prime[0], a_prime[1])
             circle = point_1.buffer(correction).boundary
             line = LineString([(a_prime[0],a_prime[1]), (b_prime[0],b_prime[1])])
-
             intersection = circle.intersection(line)
-            print('intersection : ', intersection)
+
             try:
                 XYZ = [[intersection.coords[0][0]],[intersection.coords[0][1]], [h_object]]
-                print('XYZ corrigé : \n', XYZ)
                 return XYZ
             except Exception as e:
                 print(f'An error occured : {e}')
@@ -131,7 +125,6 @@ class PerspectiveCalibration:
             #The new coordinates of the aimed point in the robot coordinates are declared to be the coords of the intersection
             try:
                 XYZ = [[XYZ[0]],[XYZ[1]], [h_object]]
-                print('XYZ non-corrigé : \n', XYZ)
                 return XYZ
             except Exception as e:
                 print(f'An error occured : {e}')

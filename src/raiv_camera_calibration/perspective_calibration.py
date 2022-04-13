@@ -61,7 +61,7 @@ class PerspectiveCalibration:
         self.depth_image = rospy.wait_for_message('/Distance_Here', Image)
         self.depth_image = bridge.imgmsg_to_cv2(self.depth_image, desired_encoding = 'passthrough')
 
-        #check if the value of depth is coherent with the values of hiehgt we are waiting for the table, i.e between the distance of the table + 3 mm and 12 centimeters high from the table
+        #check if the value of depth is coherent with the values of heihgt we are waiting for the table, i.e between the distance of the table + 3 mm and 12 centimeters high from the table
         #if not self.background_index + 3 > self.depth_image[v][u] > self.background_index - 120:
         #    XYZ = [['a'],['b'],['c']]
         #    print('Value of depth is not coherent')
@@ -112,8 +112,7 @@ class PerspectiveCalibration:
             intersection = circle.intersection(line)
 
             try:
-                XYZ = [[intersection.coords[0][0]],[intersection.coords[0][1]], [h_object]]
-                return XYZ
+                return intersection.coords[0][0], intersection.coords[0][1], h_object
             except Exception as e:
                 print(f'An error occured : {e}')
                 print(image_coordinates)
@@ -123,8 +122,7 @@ class PerspectiveCalibration:
             print('aucune correction nécessaire')
             #The new coordinates of the aimed point in the robot coordinates are declared to be the coords of the intersection
             try:
-                XYZ = [[XYZ[0]],[XYZ[1]], [h_object]]
-                return XYZ
+                return XYZ[0], XYZ[1], h_object
             except Exception as e:
                 print(f'An error occured : {e}')
                 print(image_coordinates)

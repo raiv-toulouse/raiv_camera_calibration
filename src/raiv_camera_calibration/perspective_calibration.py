@@ -11,6 +11,7 @@ import math
 from shapely.geometry import LineString
 from shapely.geometry import Point
 
+
 #
 # Perform a conversion from 2D pixel to XYZ 3D coordinates expressed in the robot frame.
 # Use it AFTER a camera calibration (which provides the necessary files : newcam_mtx.npy, R_mtx.npy, S_arr.npy and translation_vector.npy)
@@ -21,10 +22,12 @@ class PerspectiveCalibration:
         if depth_image is None:
             depth_image = rospy.wait_for_message('/Distance_Here', Image)
             bridge = CvBridge()
-            depth_image = bridge.imgmsg_to_cv2(depth_image, desired_encoding = 'passthrough')
+            self.depth_image = bridge.imgmsg_to_cv2(depth_image, desired_encoding = 'passthrough')
+        else:
+            self.depth_image = depth_image
 
         #Calculate the histogram of the depth image to get the distance value of the table by getting the most recurrent value in the image
-        self.histogram = cv2.calcHist([depth_image], [0], None, [1000], [1,1000])
+        self.histogram = cv2.calcHist([self.depth_image], [0], None, [1000], [1,1000])
         self.background_index = self.histogram.argmax()
 
         # load camera calibration
@@ -58,8 +61,8 @@ class PerspectiveCalibration:
         xyz_c0 = xyz_c0 - self.translation_vector
         XYZ0 = self.inverse_R_mtx.dot(xyz_c0)
 
-        self.depth_image = rospy.wait_for_message('/Distance_Here', Image)
-        self.depth_image = bridge.imgmsg_to_cv2(self.depth_image, desired_encoding = 'passthrough')
+        #self.depth_image = rospy.wait_for_message('/Distance_Here', Image)
+        #self.depth_image = bridge.imgmsg_to_cv2(self.depth_image, desired_encoding = 'passthrough')
 
         #check if the value of depth is coherent with the values of heihgt we are waiting for the table, i.e between the distance of the table + 3 mm and 12 centimeters high from the table
         #if not self.background_index + 3 > self.depth_image[v][u] > self.background_index - 120:
@@ -68,10 +71,10 @@ class PerspectiveCalibration:
         #    return XYZ
 
         #This value correspond to the value of the table
-        print('self background index', self.background_index)
+        #print('self background index', self.background_index)
 
         #This value correspond to the value of distance of the pixel selected with the coordinates (v,u)
-        print('Depth value of the selected pixel : ', self.depth_image[v][u])
+        #print('Depth value of the selected pixel : ', self.depth_image[v][u])
 
         #print('coordonnée u', u)
         #print('coordonnée v', v)
@@ -80,7 +83,7 @@ class PerspectiveCalibration:
         h_object = (self.background_index - self.depth_image[v][u])/10
 
 
-        print("Height of the object : ", h_object)
+        #print("Height of the object : ", h_object)
 
         #b_prime is the coordinates of the center of the image (in robot coordinates)
         b_prime = XYZ0
@@ -102,6 +105,11 @@ class PerspectiveCalibration:
        #we use the Thales Theorem to calculate the correction necessary
         correction = abs(((h_object * a_prime_b_prime) / b_prime_c))
         print(f'The correction equals {correction} cm')
+
+        if correction > 2.5:
+            print (h_object)
+            print(a_prime_b_prime)
+            print(b_prime_c)
 
         if correction != 0 :
             #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image

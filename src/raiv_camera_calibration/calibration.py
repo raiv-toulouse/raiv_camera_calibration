@@ -239,13 +239,10 @@ class Calibration(QWidget):
         if self.pixel_coord == None:
                 QMessageBox.warning(self, "Warning", "Do you forget to select a pixel on the image?")
         else:
-            xyz = self.dPoint.from_2d_to_3d(self.pixel_coord)
-            print ('eh oh' , xyz)
+            x, y, z = self.dPoint.from_2d_to_3d(self.pixel_coord)
             self._print_info("Pixel coord = {:.0f}, {:.0f}".format(self.pixel_coord[0],self.pixel_coord[1]))
-            self._print_info("XYZ = {:.2f}, {:.2f}, {:.2f}".format(float(xyz[0][0]),float(xyz[1][0]),float(xyz[2][0])))
-            x = xyz[0][0] / 100
-            y = xyz[1][0] / 100
-            z = xyz[2][0] / 100 + Z_ROBOT
+            self._print_info("XYZ = {:.2f}, {:.2f}, {:.2f}".format(float(x),float(y),float(z)))
+            z = z + Z_ROBOT
             print('z securité' , z)
             self.robot.go_to_xyz_position(x, y, z)
 

@@ -16,20 +16,19 @@ from shapely.geometry import Point
 # Use it AFTER a camera calibration (which provides the necessary files : newcam_mtx.npy, R_mtx.npy, S_arr.npy and translation_vector.npy)
 #
 class PerspectiveCalibration:
-    def __init__(self, savedir):
-        bridge = CvBridge()
+    def __init__(self, savedir, depth_image=None):
 
-        self.savedir = Path(savedir)
-
-        depth_image = rospy.wait_for_message('/Distance_Here', Image)
-        depth_image = bridge.imgmsg_to_cv2(depth_image, desired_encoding = 'passthrough')
+        if depth_image is None:
+            depth_image = rospy.wait_for_message('/Distance_Here', Image)
+            bridge = CvBridge()
+            depth_image = bridge.imgmsg_to_cv2(depth_image, desired_encoding = 'passthrough')
 
         #Calculate the histogram of the depth image to get the distance value of the table by getting the most recurrent value in the image
         self.histogram = cv2.calcHist([depth_image], [0], None, [1000], [1,1000])
         self.background_index = self.histogram.argmax()
 
-
         # load camera calibration
+        self.savedir = Path(savedir)
         newcam_mtx = np.load(self.savedir / 'newcam_mtx.npy')
         self.inverse_newcam_mtx = np.linalg.inv(newcam_mtx)
         R_mtx = np.load(self.savedir / 'R_mtx.npy')

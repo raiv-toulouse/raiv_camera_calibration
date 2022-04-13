@@ -112,7 +112,7 @@ class PerspectiveCalibration:
             intersection = circle.intersection(line)
 
             try:
-                return intersection.coords[0][0], intersection.coords[0][1], h_object
+                return intersection.coords[0][0]/100, intersection.coords[0][1]/100, h_object/100
             except Exception as e:
                 print(f'An error occured : {e}')
                 print(image_coordinates)
@@ -122,7 +122,7 @@ class PerspectiveCalibration:
             print('aucune correction nécessaire')
             #The new coordinates of the aimed point in the robot coordinates are declared to be the coords of the intersection
             try:
-                return XYZ[0], XYZ[1], h_object
+                return XYZ[0]/100, XYZ[1]/100, h_object/100
             except Exception as e:
                 print(f'An error occured : {e}')
                 print(image_coordinates)

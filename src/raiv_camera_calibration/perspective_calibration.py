@@ -40,7 +40,7 @@ class PerspectiveCalibration:
         self.translation_vector = np.load(self.savedir / 'translation_vector.npy')
         self.scalingfactor = s_arr[0]
 
-    def from_2d_to_3d(self, image_coordinates):
+    def from_2d_to_3d(self, image_coordinates, depth=None):
         bridge = CvBridge()
 
         # Expected this format -> np.array([(0.0, 0.0, 30)])
@@ -80,9 +80,12 @@ class PerspectiveCalibration:
         #print('coordonnée v', v)
 
         #The height of the object of the selected pixel is equal to the height of the table minus the height of the pixel
-        h_object = (self.background_index - self.depth_image[v][u])/10
-
-
+        if depth is None:
+            h_object = (self.background_index - self.depth_image[v][u]) / 10
+            print('h_object with depth_image')
+        else:
+            h_object = (self.background_index - depth[v][u]) / 10
+            print('h_object with depth ')
         #print("Height of the object : ", h_object)
 
         #b_prime is the coordinates of the center of the image (in robot coordinates)
@@ -107,9 +110,8 @@ class PerspectiveCalibration:
         print(f'The correction equals {correction} cm')
 
         if correction > 2.5:
-            print (h_object)
-            print(a_prime_b_prime)
-            print(b_prime_c)
+            print ('BBBBBBBBBBBBBBBBEEEEEEEEEEEUUUUUUUUUUUUUUUUGGGGGGGGGG MMMMMMAAAAATTTTTRRRRRRRRRRRRIIIIIIIIIIIIIIIIIIICCCCCCCCCCCCCCCCCEEEEEEE')
+
 
         if correction != 0 :
             #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image

@@ -18,9 +18,10 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
             "Finally, click the 'Calibrate' button")
 
 # Robot coord to be out of camera scope en metre
-X_ROBOT_OUT = 0.0
-Y_ROBOT_OUT = -0.3
-Z_ROBOT = 0.005 # Z coord (in m) for the robot during the verify step
+X_ROBOT_OUT = 0.27
+Y_ROBOT_OUT = -0.24
+Z_ROBOT_OUT = 0.2
+Z_ROBOT = 0.002 # Z coord (in m) for the robot during the verify step
 
 
 #
@@ -68,7 +69,7 @@ class Calibration(QWidget):
 
     def _move_robot_out_of_scope(self):
         if self.robot:
-            self.robot.go_to_xyz_position(X_ROBOT_OUT, Y_ROBOT_OUT, 0.2)
+            self.robot.go_to_xyz_position(X_ROBOT_OUT, Y_ROBOT_OUT, Z_ROBOT_OUT)
 
     def select_checkerboard_image_folder(self):
         dir = QFileDialog.getExistingDirectory(self, "Select checkerboard images directory", ".", QFileDialog.ShowDirsOnly)
@@ -242,9 +243,9 @@ class Calibration(QWidget):
             x, y, z = self.dPoint.from_2d_to_3d(self.pixel_coord)
             self._print_info("Pixel coord = {:.0f}, {:.0f}".format(self.pixel_coord[0],self.pixel_coord[1]))
             self._print_info("XYZ = {:.2f}, {:.2f}, {:.2f}".format(float(x),float(y),float(z)))
-            z = z + Z_ROBOT
-            print('z securité' , z)
-            self.robot.go_to_xyz_position(x, y, z)
+            z_secu = z + Z_ROBOT
+            print('z securité' , z_secu)
+            self.robot.go_to_xyz_position(x, y, z_secu)
 
 
     def save_parameters(self, rotation_vector, translation_vector, newcam_mtx):

@@ -140,7 +140,7 @@ class PerspectiveCalibration:
 
 
 if __name__ == '__main__':
-    object = PerspectiveCalibration('/common/calibration/camera/camera_data')
+    object = PerspectiveCalibration('/common/work/calibration/camera/camera_data')
     image_coordinates = [354.0, 207.0]
     x, y, z = object.from_2d_to_3d(image_coordinates)
     print(x, y, z)

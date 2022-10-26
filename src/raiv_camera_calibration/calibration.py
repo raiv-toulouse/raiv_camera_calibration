@@ -11,7 +11,8 @@ import pickle
 from raiv_camera_calibration.perspective_calibration import PerspectiveCalibration
 from raiv_libraries.robotUR import RobotUR
 from raiv_libraries.simple_image_controller import SimpleImageController
-import os
+from sensor_msgs.msg import Image
+from cv_bridge import CvBridge
 
 MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point' button.",
             "Now, click in the image on the point #{} then click the 'Get point' button",
@@ -21,7 +22,7 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
 X_ROBOT_OUT = 0.27
 Y_ROBOT_OUT = -0.24
 Z_ROBOT_OUT = 0.2
-Z_ROBOT = 0.002 # Z coord (in m) for the robot during the verify step
+Z_ROBOT = 0.004 # Z coord (in m) for the robot during the verify step
 
 
 #
@@ -148,6 +149,9 @@ class Calibration(QWidget):
         self.image_controller = SimpleImageController(self.image_topic)
         img, self.width, self.height = self.image_controller.get_image()
         qimage = QImage(img.tobytes("raw","RGB"), self.width, self.height, QImage.Format_RGB888)
+
+        image_depth = rospy.wait_for_message('/Distance_Here', Image)
+        self.image_depth = CvBridge().imgmsg_to_cv2(image_depth, desired_encoding='16UC1')
         self.canvas.set_image(qimage)
 
     def _activate_robot(self):
@@ -240,7 +244,7 @@ class Calibration(QWidget):
         if self.pixel_coord == None:
                 QMessageBox.warning(self, "Warning", "Do you forget to select a pixel on the image?")
         else:
-            x, y, z = self.dPoint.from_2d_to_3d(self.pixel_coord)
+            x, y, z = self.dPoint.from_2d_to_3d(self.pixel_coord, self.image_depth)
             self._print_info("Pixel coord = {:.0f}, {:.0f}".format(self.pixel_coord[0],self.pixel_coord[1]))
             self._print_info("XYZ = {:.2f}, {:.2f}, {:.2f}".format(float(x),float(y),float(z)))
             z_secu = z + Z_ROBOT

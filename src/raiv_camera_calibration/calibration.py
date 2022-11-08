@@ -22,7 +22,7 @@ MESSAGES = ("First, put the robot tool on the point #{} and click the 'Get point
 X_ROBOT_OUT = 0.27
 Y_ROBOT_OUT = -0.24
 Z_ROBOT_OUT = 0.2
-Z_ROBOT = 0.004 # Z coord (in m) for the robot during the verify step
+Z_ROBOT = 0.03 # Add this length (in m) to the Z coord of the point during the verify step to avoid collision between robot and object
 
 
 #

@@ -61,7 +61,7 @@ class PerspectiveCalibration:
         xyz_c0 = xyz_c0 - self.translation_vector
         XYZ0 = self.inverse_R_mtx.dot(xyz_c0)
 
-        #self.depth_image = rospy.wait_for_message('/Distance_Here', Image)
+        #self.depth_image = rospy.wait_for_message('/camera/aligned_depth_to_color/image_raw', Image)
         #self.depth_image = bridge.imgmsg_to_cv2(self.depth_image, desired_encoding = 'passthrough')
 
         #check if the value of depth is coherent with the values of heihgt we are waiting for the table, i.e between the distance of the table + 3 mm and 12 centimeters high from the table

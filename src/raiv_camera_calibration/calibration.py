@@ -150,7 +150,7 @@ class Calibration(QWidget):
         img, self.width, self.height = self.image_controller.get_image()
         qimage = QImage(img.tobytes("raw","RGB"), self.width, self.height, QImage.Format_RGB888)
 
-        image_depth = rospy.wait_for_message('/Distance_Here', Image)
+        image_depth = rospy.wait_for_message('/camera/aligned_depth_to_color/image_raw', Image)
         self.image_depth = CvBridge().imgmsg_to_cv2(image_depth, desired_encoding='16UC1')
         self.canvas.set_image(qimage)
 

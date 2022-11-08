@@ -20,7 +20,7 @@ class PerspectiveCalibration:
     def __init__(self, savedir, depth_image=None):
 
         if depth_image is None:
-            depth_image = rospy.wait_for_message('/Distance_Here', Image)
+            depth_image = rospy.wait_for_message('/camera/aligned_depth_to_color/image_raw', Image)
             bridge = CvBridge()
             self.depth_image = bridge.imgmsg_to_cv2(depth_image, desired_encoding = 'passthrough')
         else:

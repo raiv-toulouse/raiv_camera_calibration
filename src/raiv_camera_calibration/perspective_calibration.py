@@ -140,7 +140,8 @@ class PerspectiveCalibration:
 
 
 if __name__ == '__main__':
-    object = PerspectiveCalibration('/common/work/calibration/camera/camera_data')
-    image_coordinates = [354.0, 207.0]
+    rospy.init_node('test_perspective_calibration')
+    object = PerspectiveCalibration('/common/save/calibration/camera/camera_data')
+    image_coordinates = [354, 207]
     x, y, z = object.from_2d_to_3d(image_coordinates)
     print(x, y, z)

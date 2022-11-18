@@ -50,10 +50,6 @@ class Calibration(QWidget):
         self.btn_robot_out_of_scope.clicked.connect(self._move_robot_out_of_scope)
         # Attributs
         self.image_topic = image_topic
-
-        self.distance_topic = '/camera/aligned_depth_to_color/image_raw'
-        self.distance = None
-
         self.image_controller = None
         self.checkerboard_image_folder = None
         self.calibration_files_folder = None

@@ -82,10 +82,8 @@ class PerspectiveCalibration:
         #The height of the object of the selected pixel is equal to the height of the table minus the height of the pixel
         if depth is None:
             h_object = (self.background_index - self.depth_image[v][u]) / 10
-            print('h_object with depth_image')
         else:
             h_object = (self.background_index - depth[v][u]) / 10
-            print('h_object with depth ')
         #print("Height of the object : ", h_object)
 
         #b_prime is the coordinates of the center of the image (in robot coordinates)
@@ -107,7 +105,6 @@ class PerspectiveCalibration:
 
        #we use the Thales Theorem to calculate the correction necessary
         correction = abs(((h_object * a_prime_b_prime) / b_prime_c))
-        print(f'The correction equals {correction} cm')
 
         if correction > 2.5:
             print ('BBBBBBBBBBBBBBBBEEEEEEEEEEEUUUUUUUUUUUUUUUUGGGGGGGGGG MMMMMMAAAAATTTTTRRRRRRRRRRRRIIIIIIIIIIIIIIIIIIICCCCCCCCCCCCCCCCCEEEEEEE')

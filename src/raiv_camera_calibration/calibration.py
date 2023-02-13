@@ -10,10 +10,7 @@ from PyQt5.QtGui import QImage
 import pickle
 from raiv_camera_calibration.perspective_calibration import PerspectiveCalibration
 from raiv_libraries.robotUR import RobotUR
-from raiv_libraries.simple_image_controller import SimpleImageController
-
 from raiv_libraries.rgb_and_depth_image_controller import RgbAndDepthImageController
-
 from raiv_libraries.image_tools import ImageTools
 from sensor_msgs.msg import Image
 from cv_bridge import CvBridge

@@ -107,8 +107,7 @@ class PerspectiveCalibration:
         correction = abs(((h_object * a_prime_b_prime) / b_prime_c))
 
         if correction > 2.5:
-            print ('BBBBBBBBBBBBBBBBEEEEEEEEEEEUUUUUUUUUUUUUUUUGGGGGGGGGG MMMMMMAAAAATTTTTRRRRRRRRRRRRIIIIIIIIIIIIIIIIIIICCCCCCCCCCCCCCCCCEEEEEEE')
-
+            print(f'Big correction in from_2d_to_3d in perspective_calibration.py = {correction:.2f}')
 
         if correction != 0 :
             #We draw a circle with the diameter of the correction with the selected pixel as the center then we draw a line from the pixel to the center of the image
@@ -121,7 +120,7 @@ class PerspectiveCalibration:
             try:
                 return intersection.coords[0][0]/100, intersection.coords[0][1]/100, h_object/100
             except Exception as e:
-                print(f'An error occured : {e}')
+                print(f'An error occured in from_2d_to_3d in perspective_callibration : {e}')
                 print(image_coordinates)
                 return self.from_2d_to_3d(self, image_coordinates)
 
@@ -131,7 +130,7 @@ class PerspectiveCalibration:
             try:
                 return XYZ[0]/100, XYZ[1]/100, h_object/100
             except Exception as e:
-                print(f'An error occured : {e}')
+                print(f'An error occured  in from_2d_to_3d in perspective_callibration : {e}')
                 print(image_coordinates)
                 return self.from_2d_to_3d(self, image_coordinates)
 
